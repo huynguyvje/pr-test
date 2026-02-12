@@ -1,8 +1,11 @@
 name: PR test workflow
 
 on:
-  pull_request_target:
+  pull_request:
     branches: ["main"]
+
+permissions:
+  contents: read
 
 jobs:
   run-pr-code:
@@ -18,7 +21,7 @@ jobs:
           echo "PR commit:"
           echo ${{ github.event.pull_request.head.sha }}
 
-      - name: Checkout PR code
+      - name: Checkout PR code (from fork)
         uses: actions/checkout@v4
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
