@@ -2,19 +2,43 @@ name: PR test workflow
 
 on:
   pull_request_target:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   run-pr-code:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout attacker PR code
+      - name: Show event info
+        run: |
+          echo "Repo running workflow:"
+          echo ${{ github.repository }}
+          echo "PR from repo:"
+          echo ${{ github.event.pull_request.head.repo.full_name }}
+          echo "PR commit:"
+          echo ${{ github.event.pull_request.head.sha }}
+
+      - name: Checkout PR code
         uses: actions/checkout@v4
         with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Run attacker code
+      - name: Verify files exist
         run: |
-          echo "Running attacker code"
+          echo "Files in repo:"
           ls -la
-          env
+
+      - name: Run PR script if exists
+        run: |
+          if [ -f evil.sh ]; then
+            echo "Running script from PR..."
+            bash evil.sh
+          else
+            echo "No script found"
+          fi
+
+      - name: Print environment variables
+        run: |
+          echo "ENV VARIABLES:"
+          env | sort
